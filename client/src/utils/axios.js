@@ -1,0 +1,34 @@
+import axios from "axios";
+
+const api = axios.create({
+    baseURL: "http://localhost:5000/api",
+    withCredentials: true, // IMPORTANT: send cookies
+});
+
+// Response interceptor: if 401, try refresh once
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        if (
+            error.response &&
+            error.response.status === 401 &&
+            !originalRequest._retry
+        ) {
+            originalRequest._retry = true;
+            try {
+                await api.post("/auth/refresh");
+                return api(originalRequest);
+            } catch (refreshErr) {
+                // Refresh failed -> force logout
+                window.location.href = "/login";
+                return Promise.reject(refreshErr);
+            }
+        }
+
+        return Promise.reject(error);
+    }
+);
+
+export default api;

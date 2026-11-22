@@ -1,0 +1,42 @@
+import { useEffect, useState } from "react"
+import MainLayout from "../../components/layout/MainLayout"
+import { getSecurityAlerts } from "../../api/securityControlApi"
+import { Table, Card } from "../../components/ui"
+
+export default function SecurityAlerts() {
+
+    const [data, setData] = useState([])
+
+    useEffect(() => {
+        getSecurityAlerts().then(res => setData(res.data))
+    }, [])
+
+    const columns = [
+
+        { key: "alertType", label: "Alert" },
+
+        { key: "severity", label: "Severity" },
+
+        { key: "ip", label: "IP" },
+
+        { key: "createdAt", label: "Time" }
+
+    ]
+
+    return (
+
+        <MainLayout>
+
+            <h2>Security Alerts</h2>
+
+            <Card>
+
+                <Table columns={columns} data={data} />
+
+            </Card>
+
+        </MainLayout>
+
+    )
+
+}
